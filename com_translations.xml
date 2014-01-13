@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="component" version="3.0.0" method="upgrade" overwrite="true">
+    <name>Translations</name>
+    <identifier>com:translations</identifier>
+    <author>Dave Li</author>
+    <creationDate>October 2013</creationDate>
+    <copyright>Copyright (C) 2013 Moyo Web Architects and Contributors. (http://www.moyoweb.nl)</copyright>
+    <license>GNU GPLv3 - http://www.gnu.org/licenses/gpl.html</license>
+    <authorEmail>dave@moyoweb.nl</authorEmail>
+    <authorUrl>www.moyoweb.nl</authorUrl>
+    <version>1.0.0</version>
+    <description>Translations</description>
+
+    <administration>
+        <files folder="administrator/components/com_translations">
+            <file>translations.php</file>
+
+            <folder>databases</folder>
+            <folder>models</folder>
+        </files>
+
+        <menu>COM_TRANSLATIONS</menu>
+    </administration>
+</extension>
