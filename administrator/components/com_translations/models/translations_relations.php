@@ -19,7 +19,7 @@ class ComTranslationsModelTranslations_relations extends ComDefaultModelDefault
         parent::_buildQueryWhere($query);
 
 	    if($state->translations_translation_id) {
-		    $query->where('tbl.translations_translation_id', 'LIKE', $state->translations_translation_id);
+		    $query->where('tbl.translations_translation_id', '=', $state->translations_translation_id);
 	    }
 
 	    if($state->translated) {
