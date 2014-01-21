@@ -7,10 +7,8 @@ class ComTranslationsDatabaseTableLanguages extends KDatabaseTableDefault
         $config->append(array(
             'name'      => 'languages',
             'base'      => 'languages',
-
+	        'identity_column' => 'lang_id'
         ));
-
-        $config->identity_column = 'lang_id';
 
         parent::_initialize($config);
     }

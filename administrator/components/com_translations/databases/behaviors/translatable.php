@@ -104,6 +104,19 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
                     $data = $table->mapColumns($data);
 
                     $database->insert($name, $data, $query);
+
+	                // Save to the translations table.
+
+	                if($context->data->id) {
+		                $row = $this->getService('com://admin/translations.database.row.translation');
+		                $row->setData(array(
+			                'row' => $context->data->id,
+			                'table' => ($iso_code != 'en') ? substr($name, 3) : $name,
+			                'original' => JFactory::getLanguage()->getTag(),
+			                'lang' => $language->lang_code
+		                ));
+		                $row->save();
+	                }
                 }
             } catch(Exception $e) {
                 //TODO:: Mail error report!
@@ -129,6 +142,18 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
             }
         }
     }
+
+	protected function _afterTableUpdate(KCommandContext $context) {
+		if($context->data->getTable()->getName() != 'cck_values') {
+			$row = $this->getService('com://admin/translations.model.translations')->row($context->data->id)->table($context->data->getTable()->getName())->getList()->top();
+			$row->setData(array(
+				'translated' => $context->data->translated
+			));
+			$row->save();
+		}
+
+		return true;
+	}
 
     /**
      * @param KCommandContext $context
@@ -205,4 +230,21 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
 
         return $name;
     }
+
+	public function translated() {
+		$translated = true;
+		$translation = $this->getService('com://admin/translations.model.translations')->row($this->id)->table($this->getTable()->getName())->original(JFactory::getLanguage()->getTag())->getList()->top();
+		if(!$translation->id) {
+			$translated = false;
+
+			// If the language isn't original then it is a translation.
+			// So we need to get the translation here.
+			$translation = $this->getService('com://admin/translations.model.translations')->row($this->id)->table($this->getTable()->getName())->lang(JFactory::getLanguage()->getTag())->getList()->top();
+			if($translation->translated) {
+				$translated = true;
+			}
+		}
+
+		return $translated;
+	}
 }
