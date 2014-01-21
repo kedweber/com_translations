@@ -8,17 +8,17 @@ class ComTranslationsTemplateHelperLanguage extends KTemplateHelperAbstract {
 			'table' => '',
 		));
 
-		$rows = $this->getService('com://admin/translations.model.translations')->row($config->row)->table($config->table)->getList();
+		$translation = $this->getService('com://admin/translations.model.translations')->row($config->row)->table($config->table)->getList()->top();
+		$relations = $this->getService('com://admin/translations.model.translations_relations')->translations_translation_id($translation->id)->getList();
 
 		// The original is always translated.
-		$original = $rows->top();
 		$html = '';
 
-		if($original) {
+		if($translation) {
 			$html .= '<style src="media://com_translations/css/translations.css" />';
-			$html .= '<a href="' . $this->getTemplate()->getView()->createRoute('view=article&id=' . $config->row . '&backendlanguage=' . $original->original) . '"><div class="badge badge-success">' . substr($original->original, 3, 5) . '</a></div>';
+			$html .= '<a href="' . $this->getTemplate()->getView()->createRoute('view=article&id=' . $config->row . '&backendlanguage=' . $translation->original) . '"><div class="badge badge-success">' . substr($translation->original, 3, 5) . '</a></div>';
 
-			foreach($rows as $language) {
+			foreach($relations as $language) {
 				if($language->translated) {
 					$html .= ' <a href="' . $this->getTemplate()->getView()->createRoute('view=article&id=' . $config->row . '&backendlanguage=' . $language->lang) . '"><div class="badge badge-success">' . substr($language->lang, 3, 5) . '</a></div>';
 				} else {

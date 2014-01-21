@@ -20,10 +20,6 @@ class ComTranslationsModelTranslations extends ComDefaultModelDefault
 
         parent::_buildQueryWhere($query);
 
-		if($state->lang) {
-			$query->where('lang', 'LIKE', $state->lang);
-		}
-
 	    if($state->original) {
 		    $query->where('original', 'LIKE', $state->original);
 	    }
