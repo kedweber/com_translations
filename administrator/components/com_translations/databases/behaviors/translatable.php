@@ -159,7 +159,6 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
 		if($context->data->getTable()->getName() != 'cck_values') {
 
 			$translation = $this->getService('com://admin/translations.model.translations')->row($context->data->id)->table($context->data->getTable()->getName())->getList()->top();
-			$relation = $this->getService('com://admin/translations.model.translations_relations')->lang(JFactory::getLanguage()->getTag())->getList()->top();
 
 			// We don't have an original yet. So we have to create it.
 			if(!$translation->id)
@@ -175,11 +174,22 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
 				$translation->save();
 			}
 
-			// We can't "translate the original"
-			if($relation->id && $translation->original != JFactory::getLanguage()->getTag()) {
+			$relation = $this->getService('com://admin/translations.model.translations_relations')->translations_translation_id($translation->id)->lang(JFactory::getLanguage()->getTag())->getList()->top();
+
+			// We don't have a translation yet. So we have to create it.
+			if(!$relation->id && $translation->original != JFactory::getLanguage()->getTag())
+			{
+				$relation = $this->getService('com://admin/translations.database.row.translations_relations');
 				$relation->setData(array(
-					'translated' => $context->data->translated
+					'translations_translation_id' => $translation->id,
+					'lang' => JFactory::getLanguage()->getTag(),
+					'translated' => ($context->data->translated) ? 1 : 0
 				));
+				$relation->save();
+			}
+			else if($relation->id && $translation->original != JFactory::getLanguage()->getTag())
+			{
+				$relation->translated = ($context->data->translated) ? 1 : 0;
 				$relation->save();
 			}
 		}
@@ -266,7 +276,7 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
 	public function translated()
 	{
 		$translated = true;
-		$translation = $this->getService('com://admin/translations.model.translations')->row($this->id)->table($this->getTable()->getName())->original(JFactory::getLanguage()->getTag())->getList()->top();
+		$translation = $this->getService('com://admin/translations.model.translations')->row($this->id)->table($this->getTable()->getName())->getList()->top();
 
 		if($translation->id && $translation->original != JFactory::getLanguage()->getTag())
 		{
