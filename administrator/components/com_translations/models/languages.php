@@ -9,6 +9,8 @@ class ComTranslationsModelLanguages extends ComDefaultModelDefault
 			->insert('row', 'int')
 			->insert('table', 'string')
 			->insert('connect', 'boolean')
+			->insert('sort', 'string', 'id')
+			->insert('direction', 'string', 'asc')
 		;
 	}
 
