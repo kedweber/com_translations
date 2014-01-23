@@ -161,6 +161,20 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
 			$translation = $this->getService('com://admin/translations.model.translations')->row($context->data->id)->table($context->data->getTable()->getName())->getList()->top();
 			$relation = $this->getService('com://admin/translations.model.translations_relations')->lang(JFactory::getLanguage()->getTag())->getList()->top();
 
+			// We don't have an original yet. So we have to create it.
+			if(!$translation->id)
+			{
+				$translation = $this->getService('com://admin/translations.database.row.translation');
+
+				$translation->setData(array(
+					'row' => $context->data->id,
+					'table' => $context->data->getTable()->getName(),
+					'original' => JFactory::getLanguage()->getTag()
+				));
+
+				$translation->save();
+			}
+
 			// We can't "translate the original"
 			if($relation->id && $translation->original != JFactory::getLanguage()->getTag()) {
 				$relation->setData(array(
@@ -249,17 +263,25 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
         return $name;
     }
 
-	public function translated() {
+	public function translated()
+	{
 		$translated = true;
 		$translation = $this->getService('com://admin/translations.model.translations')->row($this->id)->table($this->getTable()->getName())->original(JFactory::getLanguage()->getTag())->getList()->top();
-		if(!$translation->id && $translation->original != JFactory::getLanguage()->getTag()) {
+
+		if($translation->id && $translation->original != JFactory::getLanguage()->getTag())
+		{
 			$translated = false;
 
 			$relation = $this->getService('com://admin/translations.model.translations_relations')->translations_translation_id($translation->id)->lang(JFactory::getLanguage()->getTag())->getList()->top();
 
-			if($relation->translated) {
+			if($relation->translated)
+			{
 				$translated = true;
 			}
+		}
+		else if(!$translation->id)
+		{
+			$translated = false;
 		}
 
 		return $translated;

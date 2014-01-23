@@ -14,6 +14,15 @@ class ComTranslationsModelTranslations extends ComDefaultModelDefault
 		;
 	}
 
+	protected function _buildQueryJoins(KDatabaseQuery $query) {
+		parent::_buildQueryJoins($query);
+
+		if($this->_state->lang) {
+			$query->select('rel.*');
+			$query->join('left outer', '#__translations_translations_relations AS rel', 'tbl.translations_translation_id = rel.translations_translation_id');
+		}
+	}
+
     protected function _buildQueryWhere(KDatabaseQuery $query)
     {
         $state = $this->getState();
@@ -24,11 +33,8 @@ class ComTranslationsModelTranslations extends ComDefaultModelDefault
 		    $query->where('original', 'LIKE', $state->original);
 	    }
 
-	    if($state->translated) {
-		    if($state->lang) {
-			    $query->where('lang', 'LIKE', $state->lang);
-		    }
-		    $query->where('translated', '=', $state->translated);
+	    if($state->lang) {
+			$query->where('rel.lang', '=', $state->lang);
 	    }
 
 	    if($state->row && $state->table) {

@@ -12,12 +12,12 @@ class ComTranslationsModelLanguages extends ComDefaultModelDefault
 		;
 	}
 
-	protected function _buildQueryFrom(KDatabaseQuery $query) {
-		parent::_buildQueryFrom($query);
+	protected function _buildQueryColumns(KDatabaseQuery $query) {
+		parent::_buildQueryColumns($query);
 
 		if($this->_state->connect) {
 			$query->select('trans.*');
-			$query->from('#__translations_translations AS trans');
+			$query->select('rel.*');
 		}
 	}
 
@@ -25,7 +25,8 @@ class ComTranslationsModelLanguages extends ComDefaultModelDefault
 		parent::_buildQueryJoins($query);
 
 		if($this->_state->connect) {
-			$query->join('left outer', '#__translations_translations_relations AS rel', 'trans.translations_translation_id = rel.translations_translation_id');
+			$query->join('cross', '#__translations_translations AS trans', '1 = 1');
+			$query->join('left outer', '#__translations_translations_relations AS rel', 'trans.translations_translation_id = rel.translations_translation_id AND rel.lang = tbl.lang_code');
 		}
 	}
 
