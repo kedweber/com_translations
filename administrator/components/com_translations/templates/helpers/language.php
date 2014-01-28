@@ -16,13 +16,23 @@ class ComTranslationsTemplateHelperLanguage extends KTemplateHelperAbstract {
 		{
 			$relation = $this->_getLanguage($config, $language->lang_code);
 
-			if($relation->translated || $language->lang_code == $original->original)
+			if($language->lang_code == $original->original) {
+				$html .= ' <a href="' . $this->getTemplate()->getView()->createRoute('view=article&id=' . $config->row . '&backendlanguage=' . $language->lang_code) . '"><div class="badge badge-info">' . strtoupper(substr($language->lang_code, 0, 2)) . '</a></div>';
+			}
+			else if($relation->translated)
 			{
-				$html .= ' <a href="' . $this->getTemplate()->getView()->createRoute('view=article&id=' . $config->row . '&backendlanguage=' . $language->lang_code) . '"><div class="badge badge-success">' . substr($language->lang_code, 3, 5) . '</a></div>';
+				$html .= ' <a href="' . $this->getTemplate()->getView()->createRoute('view=article&id=' . $config->row . '&backendlanguage=' . $language->lang_code) . '"><div class="badge badge-success">' . strtoupper(substr($language->lang_code, 0, 2)) . '</a></div>';
 			}
 			else
 			{
-				$html .= ' <a href="' . $this->getTemplate()->getView()->createRoute('view=article&id=' . $config->row . '&backendlanguage=' . $language->lang_code) . '"><div class="badge badge-important">' . substr($language->lang_code, 3, 5) . '</a></div>';
+				if(strtotime('+ 2 weeks', strtotime($original->created_on)) > strtotime(date('d-m-Y H:i:s')))
+				{
+					$html .= ' <a href="' . $this->getTemplate()->getView()->createRoute('view=article&id=' . $config->row . '&backendlanguage=' . $language->lang_code) . '"><div class="badge badge-warning">' . strtoupper(substr($language->lang_code, 0, 2)) . '</a></div>';
+				}
+				else if(strtotime('+ 2 weeks', strtotime($original->created_on)) < strtotime(date('d-m-Y H:i:s')))
+				{
+					$html .= ' <a href="' . $this->getTemplate()->getView()->createRoute('view=article&id=' . $config->row . '&backendlanguage=' . $language->lang_code) . '"><div class="badge badge-important">' . strtoupper(substr($language->lang_code, 0, 2)) . '</a></div>';
+				}
 			}
 		}
 
