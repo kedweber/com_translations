@@ -158,7 +158,10 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
 	protected function _afterTableUpdate(KCommandContext $context) {
 		if($context->data->getTable()->getName() != 'cck_values') {
 
-			$translation = $this->getService('com://admin/translations.model.translations')->row($context->data->id)->table($context->data->getTable()->getName())->getList()->top();
+			$translation = $this->getService('com://admin/translations.model.translations')->row($context->data->id)->table($context->data->getTable()->getName())->getList();
+			if(count($translation) >= 1) {
+				$translation = $translation->top();
+			}
 
 			// We don't have an original yet. So we have to create it.
 			if(!$translation->id)
