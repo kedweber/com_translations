@@ -214,6 +214,14 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
                 //TODO:: Mail error report!
             }
         }
+
+	    if($context->data->getTable()->getName() != 'cck_values')
+	    {
+		    // I also have to remove the translations.
+		    $rows = $this->getService('com://admin/translations.model.translations')->row($context->data->id)->table($context->data->getTable()->getName())->getList();
+		    // We only need the first one (can only be one.)
+		    $rows->top()->delete();
+	    }
     }
 
     /**
