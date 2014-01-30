@@ -177,7 +177,10 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
 				$translation->save();
 			}
 
-			$relation = $this->getService('com://admin/translations.model.translations_relations')->translations_translation_id($translation->id)->lang(JFactory::getLanguage()->getTag())->getList()->top();
+			$relation = $this->getService('com://admin/translations.model.translations_relations')->translations_translation_id($translation->id)->lang(JFactory::getLanguage()->getTag())->getList();
+			if(count($relation) >= 1) {
+				$relation = $relation->top();
+			}
 
 			// We don't have a translation yet. So we have to create it.
 			if(!$relation->id && $translation->original != JFactory::getLanguage()->getTag())
