@@ -1,7 +1,7 @@
 -- ----------------------------
---  Table structure for `tcbo4_translations_translations`
+--  Table structure for `#__translations_translations`
 -- ----------------------------
-CREATE TABLE `tcbo4_translations_translations` (
+CREATE TABLE `#__translations_translations` (
   `translations_translation_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `row` bigint(20) NOT NULL,
   `table` varchar(255) NOT NULL,
@@ -16,9 +16,9 @@ CREATE TABLE `tcbo4_translations_translations` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
---  Table structure for `tcbo4_translations_translations_relations`
+--  Table structure for `#__translations_translations_relations`
 -- ----------------------------
-CREATE TABLE `tcbo4_translations_translations_relations` (
+CREATE TABLE `#__translations_translations_relations` (
   `translations_translations_relation_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `translations_translation_id` bigint(20) unsigned NOT NULL,
   `lang` varchar(255) NOT NULL,
