@@ -13,11 +13,23 @@
 
     <administration>
         <files folder="administrator/components/com_translations">
+            <file>dispatcher.php</file>
             <file>translations.php</file>
 
             <folder>databases</folder>
+            <folder>install</folder>
+            <folder>language</folder>
             <folder>models</folder>
+            <folder>templates</folder>
+            <folder>views</folder>
         </files>
+
+        <languages folder="administrator/components/com_translations">
+            <language tag="en-GB">language/en-GB/en-GB.com_translations.ini</language>
+            <language tag="en-GB">language/en-GB/en-GB.com_translations.sys.ini</language>
+            <language tag="fr-FR">language/fr-FR/fr-FR.com_translations.ini</language>
+            <language tag="fr-FR">language/fr-FR/fr-FR.com_translations.sys.ini</language>
+        </languages>
 
         <menu>COM_TRANSLATIONS</menu>
     </administration>
