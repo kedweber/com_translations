@@ -290,13 +290,21 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
 	public function translated()
 	{
 		$translated = true;
-		$translation = $this->getService('com://admin/translations.model.translations')->row($this->id)->table($this->getTable()->getName())->getList()->top();
+		$translation = $this->getService('com://admin/translations.model.translations')->row($this->id)->table($this->getTable()->getName())->getList();
+		if($translation instanceof KDatabaseRowsetDefault)
+		{
+			$translation->top();
+		}
 
 		if($translation->id && $translation->original != JFactory::getLanguage()->getTag())
 		{
 			$translated = false;
 
-			$relation = $this->getService('com://admin/translations.model.translations_relations')->translations_translation_id($translation->id)->lang(JFactory::getLanguage()->getTag())->getList()->top();
+			$relation = $this->getService('com://admin/translations.model.translations_relations')->translations_translation_id($translation->id)->lang(JFactory::getLanguage()->getTag())->getList();
+			if($relation instanceof KDatabaseRowsetDefault)
+			{
+				$relation->top();
+			}
 
 			if($relation->translated)
 			{

@@ -2,7 +2,11 @@
 
 class ComTranslationsDatabaseRowLanguage extends KDatabaseRowDefault {
 	public function getTranslatedPercentage() {
-		$translation = $this->getService('com://admin/translations.model.translations')->original($this->lang_code)->getList()->top();
+		$translation = $this->getService('com://admin/translations.model.translations')->original($this->lang_code)->getList();
+		if($translation instanceof KDatabaseRowsetDefault)
+		{
+			$translation->top();
+		}
 
 		if($translation->id) {
 			$relations = $this->getService('com://admin/translations.model.translations_relations')->translations_translation_id($translation->id)->getTotal();
@@ -11,6 +15,6 @@ class ComTranslationsDatabaseRowLanguage extends KDatabaseRowDefault {
 			return $translations . '/' . $relations;
 		}
 
-		return;
+		return '0/0';
 	}
 }
