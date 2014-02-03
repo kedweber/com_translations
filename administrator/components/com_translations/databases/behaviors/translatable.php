@@ -108,26 +108,17 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
 	                // Save to the translations table.
 
 	                if($context->data->id) {
-		                $translation = $this->getService('com://admin/translations.database.row.translation');
-		                $translation->setData(array(
-			                'row' => $context->data->id,
-			                'table' => ($iso_code != 'en') ? substr($name, 3) : $name,
-			                'original' => JFactory::getLanguage()->getTag(),
-		                ));
+                        $original = $this->getService('com://admin/translations.model.translations')->row($context->data->id)->table($context->data->getTable()->getName())->original(1)->getList();
+                        if($original instanceof KDatabaseRowsetDefault) {
+                            $original = $original->top();
+                        }
 
-		                if(!$translation->load()) {
-			                $translation->save();
-		                }
-
-		                if($language->lang_code != JFactory::getLanguage()->getTag())
-		                {
-			                $relation = $this->getService('com://admin/translations.database.row.translations_relation');
-			                $relation->setData(array(
-				                'translations_translation_id' => $translation->id,
-				                'lang' => $language->lang_code
-			                ));
-			                $relation->save();
-		                }
+                        $this->getService('com://admin/translations.database.row.translation')->setData(array(
+                            'row' => $context->data->id,
+                            'table' => $context->data->getTable()->getName(),
+                            'iso_code' => JFactory::getLanguage()->getTag(),
+                            'original' => $original->original ? 1 : 0
+                        ))->save();
 	                }
                 }
             } catch(Exception $e) {
@@ -158,46 +149,35 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
 	protected function _afterTableUpdate(KCommandContext $context) {
 		if($context->data->getTable()->getName() != 'cck_values') {
 
-			$translation = $this->getService('com://admin/translations.model.translations')->row($context->data->id)->table($context->data->getTable()->getName())->getList();
-			if(count($translation) >= 1) {
-				$translation = $translation->top();
-			}
+			$original = $this->getService('com://admin/translations.model.translations')->row($context->data->id)->table($context->data->getTable()->getName())->original(1)->getList();
+            if($original instanceof KDatabaseRowsetDefault) {
+                $original = $original->top();
+            }
 
-			// We don't have an original yet. So we have to create it.
-			if(!$translation->id)
-			{
-				$translation = $this->getService('com://admin/translations.database.row.translation');
+            // If there is no original present, then this one has to become original and default translated
+            $isOriginal = false;
+            if(!$original->id) {
+                $isOriginal = true;
+            }
 
-				$translation->setData(array(
-					'row' => $context->data->id,
-					'table' => $context->data->getTable()->getName(),
-					'original' => JFactory::getLanguage()->getTag()
-				));
+            $translation = $this->getService('com://admin/translations.model.translations')->row($context->data->id)->table($context->data->getTable()->getName())->lang(JFactory::getLanguage()->getTag())->getList();
+            if($translation instanceof KDatabaseRowsetDefault) {
+                $translation = $translation->top();
 
-				$translation->save();
-			}
-
-			$relation = $this->getService('com://admin/translations.model.translations_relations')->translations_translation_id($translation->id)->lang(JFactory::getLanguage()->getTag())->getList();
-			if(count($relation) >= 1) {
-				$relation = $relation->top();
-			}
-
-			// We don't have a translation yet. So we have to create it.
-			if(!$relation->id && $translation->original != JFactory::getLanguage()->getTag())
-			{
-				$relation = $this->getService('com://admin/translations.database.row.translations_relations');
-				$relation->setData(array(
-					'translations_translation_id' => $translation->id,
-					'lang' => JFactory::getLanguage()->getTag(),
-					'translated' => ($context->data->translated) ? 1 : 0
-				));
-				$relation->save();
-			}
-			else if($relation->id && $translation->original != JFactory::getLanguage()->getTag())
-			{
-				$relation->translated = ($context->data->translated) ? 1 : 0;
-				$relation->save();
-			}
+                if($translation->id) {
+                    $translation->setData(array(
+                        'translated' => $context->data->translated,
+                    ))->save();
+                } else {
+                    $this->getService('com://admin/translations.database.row.translation')->setData(array(
+                        'row' => $context->data->id,
+                        'table' => $context->data->getTable()->getName(),
+                        'iso_code' => JFactory::getLanguage()->getTag(),
+                        'original' => $isOriginal ? 1 : 0,
+                        'translated' => $isOriginal ? 1 : $context->data->translated,
+                    ))->save();
+                }
+            }
 		}
 
 		return true;
@@ -223,10 +203,7 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
 
 	    if($context->data->getTable()->getName() != 'cck_values')
 	    {
-		    // I also have to remove the translations.
-		    $rows = $this->getService('com://admin/translations.model.translations')->row($context->data->id)->table($context->data->getTable()->getName())->getList();
-		    // We only need the first one (can only be one.)
-		    $rows->top()->delete();
+		    $this->getService('com://admin/translations.model.translations')->row($context->data->id)->table($context->data->getTable()->getName())->getList()->delete();
 	    }
     }
 
@@ -289,33 +266,24 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
 
 	public function translated()
 	{
-		$translated = true;
-		$translation = $this->getService('com://admin/translations.model.translations')->row($this->id)->table($this->getTable()->getName())->getList();
-		if($translation instanceof KDatabaseRowsetDefault)
-		{
-			$translation->top();
-		}
+        $original = $this->getService('com://admin/translations.model.translations')->row($this->id)->table($this->getTable()->getName())->lang(JFactory::getLanguage()->getTag())->original(1)->getList();
+        if($original instanceof KDatabaseRowsetDefault) {
+            $original = $original->top();
 
-		if($translation->id && $translation->original != JFactory::getLanguage()->getTag())
-		{
-			$translated = false;
+            if($original->original) {
+                return true;
+            }
+        }
 
-			$relation = $this->getService('com://admin/translations.model.translations_relations')->translations_translation_id($translation->id)->lang(JFactory::getLanguage()->getTag())->getList();
-			if($relation instanceof KDatabaseRowsetDefault)
-			{
-				$relation->top();
-			}
+        $translation = $this->getService('com://admin/translations.model.translations')->row($this->id)->table($this->getTable()->getName())->lang(JFactory::getLanguage()->getTag())->getList();
+        if($translation instanceof KDatabaseRowsetDefault) {
+            $translation = $translation->top();
 
-			if($relation->translated)
-			{
-				$translated = true;
-			}
-		}
-		else if(!$translation->id)
-		{
-			$translated = false;
-		}
+            if($translation->translated) {
+                return true;
+            }
+        }
 
-		return $translated;
+		return false;
 	}
 }
