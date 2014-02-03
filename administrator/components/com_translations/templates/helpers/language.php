@@ -9,14 +9,14 @@ class ComTranslationsTemplateHelperLanguage extends KTemplateHelperAbstract {
 		));
 
 		// First for our knowledge we get the original language (if exists.)
-		$original = $this->_getOriginalLanguage($config);
+		$original = $this->_getOriginalLanguage($config->row, $config->table);
 		$html = '<style src="media://com_translations/css/translations.css" />';
 
 		foreach($this->_getLanguages() as $language)
 		{
 			$relation = $this->_getLanguage($config, $language->lang_code);
 
-			if($language->lang_code == $original->original) {
+			if($language->lang_code == $original->iso_code) {
 				$html .= ' <a href="' . $this->getTemplate()->getView()->createRoute('view=article&id=' . $config->row . '&backendlanguage=' . $language->lang_code) . '"><div class="badge badge-info">' . strtoupper(substr($language->lang_code, 0, 2)) . '</a></div>';
 			}
 			else if($relation->translated)
@@ -39,18 +39,32 @@ class ComTranslationsTemplateHelperLanguage extends KTemplateHelperAbstract {
 		return $html;
 	}
 
-	private function _getLanguages()
+    private function _getLanguages() {
+        return $this->getService('com://admin/translations.model.languages')->getList();
+    }
+
+	private function _getOriginalLanguage($row, $table)
 	{
-		return $this->getService('com://admin/translations.model.languages')->getList();
+		$row = $this->getService('com://admin/translations.database.row.translation')->setData(array(
+            'row' => $row,
+            'table' => $table,
+            'original' => 1
+        ))->load();
+
+        if($row->id) {
+            return $row;
+        }
 	}
 
 	private function _getLanguage($config, $language)
 	{
-		return $this->getService('com://admin/translations.model.translations')->row($config->row)->table($config->table)->lang($language)->getList()->top();
-	}
+        $row = $this->getService('com://admin/translations.model.translations')->row($config->row)->table($config->table)->lang($language)->original(0)->getList();
+        if($row instanceof KDatabaseRowsetDefault) {
+//            echo '<pre>';
+//            print_r($row->top()->getData());
+//            echo '</pre>';
 
-	private function _getOriginalLanguage($config)
-	{
-		return $this->getService('com://admin/translations.model.translations')->row($config->row)->table($config->table)->getList()->top();
+            return $row->top();
+        }
 	}
 }
