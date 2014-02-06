@@ -1,7 +1,12 @@
 <?php
 
-class ComTranslationsDispatcher extends ComDefaultDispatcher {
-	public function _initialize(KConfig $config) {
+class ComTranslationsDispatcher extends ComDefaultDispatcher
+{
+	/**
+	 * @param KConfig $config
+	 */
+	public function _initialize(KConfig $config)
+	{
 		$config->append(array(
 			'controller' => 'languages'
 		));

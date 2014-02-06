@@ -1,7 +1,9 @@
 <?php
 
-class ComTranslationsTemplateHelperLanguage extends KTemplateHelperAbstract {
-	public function translations($config = array()) {
+class ComTranslationsTemplateHelperLanguage extends KTemplateHelperAbstract
+{
+	public function translations($config = array())
+	{
 		$config = new KConfig($config);
 		$config->append(array(
 			'row' => null,
@@ -58,12 +60,9 @@ class ComTranslationsTemplateHelperLanguage extends KTemplateHelperAbstract {
 
 	private function _getLanguage($config, $language)
 	{
-        $row = $this->getService('com://admin/translations.model.translations')->row($config->row)->table($config->table)->lang($language)->original(0)->getList();
-        if($row instanceof KDatabaseRowsetDefault) {
-//            echo '<pre>';
-//            print_r($row->top()->getData());
-//            echo '</pre>';
+        $row = $this->getService('com://admin/translations.model.translations')->row($config->row)->table($config->table)->iso_code($language)->original(0)->getList();
 
+		if($row instanceof KDatabaseRowsetDefault) {
             return $row->top();
         }
 	}
