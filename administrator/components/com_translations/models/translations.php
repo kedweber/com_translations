@@ -10,9 +10,8 @@ class ComTranslationsModelTranslations extends ComDefaultModelDefault
 		parent::__construct($config);
 
 		$this->_state
-			->insert('lang', 'string')
 			->insert('translated', 'boolean')
-			->insert('original', 'boolean')
+			->insert('original', 'boolean', null ,true)
 		;
 	}
 
@@ -25,12 +24,9 @@ class ComTranslationsModelTranslations extends ComDefaultModelDefault
 
         parent::_buildQueryWhere($query);
 
-	    if(is_numeric($state->original)) {
-		    $query->where('original', '=', $state->original);
-	    }
-
-        if($state->lang) {
-            $query->where('iso_code', 'LIKE', $state->lang);
-        }
+		if($state->row && $state->table) {
+			$query->where('tbl.row', '=', $state->row);
+			$query->where('tbl.table', '=', $state->table);
+		}
     }
 }

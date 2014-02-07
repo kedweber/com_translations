@@ -22,8 +22,15 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
         $iso_code       = substr(JFactory::getLanguage()->getTag(), 0, 2);
         $parent_table   = $context->caller;
         $query          = $context->query;
-        // JH: If no query, exit function to avoid notices and possible memory issues.
-        if(empty($query)) { return; }
+
+        if($query && $parent_table->getName() != 'cck_values') {
+			$query->select('IF(translations.translated > 0, 1, 0) AS translated');
+			$query->join('left', '#__translations_translations AS translations', array(
+				'tbl.'.$parent_table->getIdentityColumn().' = translations.row',
+				'translations.table = LOWER("'.strtoupper($parent_table->getBase()).'")',
+				'translations.lang = LOWER("'.strtoupper(substr(JFactory::getLanguage()->getTag(), 0, 2)).'")'
+			));
+		}
 
         if($iso_code != 'en') {
             foreach($query->from as $key => $table) {
@@ -49,8 +56,6 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
                 }
             }
         }
-
-		// Join translated status!
     }
 
     /**
@@ -106,27 +111,13 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
                     $data = $table->mapColumns($data);
 
                     $database->insert($name, $data, $query);
-
-	                // Save to the translations table.
-
-	                if($context->data->id) {
-                        $original = $this->getService('com://admin/translations.model.translations')->row($context->data->id)->table($context->data->getTable()->getName())->original(1)->getList();
-                        if($original instanceof KDatabaseRowsetDefault) {
-                            $original = $original->top();
-                        }
-
-                        $this->getService('com://admin/translations.database.row.translation')->setData(array(
-                            'row' => $context->data->id,
-                            'table' => $context->data->getTable()->getName(),
-                            'iso_code' => JFactory::getLanguage()->getTag(),
-                            'original' => $original->original ? 1 : 0
-                        ))->save();
-	                }
                 }
             } catch(Exception $e) {
                 //TODO:: Mail error report!
             }
         }
+
+		$this->_saveTranslation($context);
     }
 
     /**
@@ -150,32 +141,7 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
 
 	protected function _afterTableUpdate(KCommandContext $context)
 	{
-		if($context->data->getTable()->getName() != 'cck_values') {
-//			$original = $this->getService('com://admin/translations.model.translations')->row($context->data->id)->table($context->data->getTable()->getName())->original(1)->getList();
-//            if($original instanceof KDatabaseRowsetDefault) {
-//                $original = $original->top();
-//            }
-//
-//            // If there is no original present, then this one has to become original and default translated
-//            $isOriginal = false;
-//            if(!$original->id) {
-//                $isOriginal = true;
-//            }
-
-			$translation = $this->getService('com://admin/translations.database.row.translation');
-			$translation->setData(array(
-				'row'		=> $context->data->id,
-				'table'		=>$context->data->getTable()->getBase(),
-				'iso_code'	=> JFactory::getLanguage()->getTag()
-			));
-			$translation->load();
-			$translation->setData(array(
-				'translated' => $context->data->translated,
-			));
-			$translation->save();
-		}
-
-		return true;
+		$this->_saveTranslation($context);
 	}
 
     /**
@@ -230,19 +196,28 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
         }
     }
 
-    public function getLanguages(){
+	/**
+	 * @return array
+	 */
+	public function getLanguages()
+	{
         $languages = JLanguageHelper::getLanguages();
-        foreach($languages as $i => &$language):
-            // Do not display language without frontend UI
-            if (!JLanguage::exists($language->lang_code)) :
-                unset($languages[$i]);
-                continue;
-            endif;
-        endforeach;
+        foreach($languages as $i => &$language) {
+			if (!JLanguage::exists($language->lang_code)) {
+				unset($languages[$i]);
+				continue;
+			}
+		}
+
         return $languages;
     }
 
-    public function getTableName($iso_code, $table)
+	/**
+	 * @param $iso_code
+	 * @param $table
+	 * @return string
+	 */
+	public function getTableName($iso_code, $table)
     {
         $name = $table->getBase();
 
@@ -259,26 +234,24 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
         return $name;
     }
 
-	public function translated()
+	/**
+	 * @param $context
+	 */
+	protected function _saveTranslation($context)
 	{
-        $original = $this->getService('com://admin/translations.model.translations')->row($this->id)->table($this->getTable()->getName())->lang(JFactory::getLanguage()->getTag())->original(1)->getList();
-        if($original instanceof KDatabaseRowsetDefault) {
-            $original = $original->top();
-
-            if($original->original) {
-                return true;
-            }
-        }
-
-        $translation = $this->getService('com://admin/translations.model.translations')->row($this->id)->table($this->getTable()->getName())->lang(JFactory::getLanguage()->getTag())->getList();
-        if($translation instanceof KDatabaseRowsetDefault) {
-            $translation = $translation->top();
-
-            if($translation->translated) {
-                return true;
-            }
-        }
-
-		return false;
+		if($context->data->getTable()->getName() != 'cck_values')
+		{
+			$translation = $this->getService('com://admin/translations.database.row.translation');
+			$translation->setData(array(
+				'row'		=> $context->data->id,
+				'table'		=>$context->data->getTable()->getBase(),
+				'iso_code'	=> JFactory::getLanguage()->getTag()
+			));
+			$translation->load();
+			$translation->setData(array(
+				'translated' => $context->data->translated,
+			));
+			$translation->save();
+		}
 	}
 }
