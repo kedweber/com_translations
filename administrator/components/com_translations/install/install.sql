@@ -1,7 +1,7 @@
 -- ----------------------------
 --  Table structure for `#__translations_translations`
 -- ----------------------------
-CREATE TABLE `#__translations_translations` (
+CREATE TABLE IF NOT EXISTS `#__translations_translations` (
   `translations_translation_id` bigint(20) NOT NULL AUTO_INCREMENT,
   `row` bigint(20) NOT NULL,
   `table` varchar(255) CHARACTER SET latin1 NOT NULL,
