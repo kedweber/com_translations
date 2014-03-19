@@ -16,11 +16,6 @@
             <file driver="mysql" charset="utf8">install/install.sql</file>
         </sql>
     </install>
-    <uninstall>
-        <sql>
-            <file driver="mysql" charset="utf8">install/uninstall.sql</file>
-        </sql>
-    </uninstall>
 
     <administration>
         <files folder="administrator/components/com_translations">
