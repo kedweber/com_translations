@@ -22,11 +22,12 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
         $iso_code       = substr(JFactory::getLanguage()->getTag(), 0, 2);
         $parent_table   = $context->caller;
         $query          = $context->query;
+        $identityColumn = $parent_table->getIdentityColumn();
 
-        if($query && $parent_table->getName() != 'cck_values') {
+        if($query && $parent_table->getName() != 'cck_values' && $identityColumn) {
 			$query->select('IF(translations.translated > 0, 1, 0) AS translated');
 			$query->join('left', '#__translations_translations AS translations', array(
-				'tbl.'.$parent_table->getIdentityColumn().' = translations.row',
+				'tbl.'.$identityColumn.' = translations.row',
 				'translations.table = LOWER("'.strtoupper($parent_table->getBase()).'")',
 				'translations.lang = LOWER("'.strtoupper(substr(JFactory::getLanguage()->getTag(), 0, 2)).'")'
 			));
