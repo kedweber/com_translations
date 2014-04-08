@@ -26,6 +26,7 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
 
         if($query && $parent_table->getName() != 'cck_values' && $identityColumn) {
 			$query->select('IF(translations.translated > 0, 1, 0) AS translated');
+			$query->select('translations.iso_code AS language');
 			$query->join('left', '#__translations_translations AS translations', array(
 				'tbl.'.$identityColumn.' = translations.row',
 				'translations.table = LOWER("'.strtoupper($parent_table->getBase()).'")',

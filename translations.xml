@@ -17,11 +17,13 @@
         </sql>
     </install>
 
+    <files folder="components/com_translations">
+        <folder>controllers</folder>
+        <folder>language</folder>
+    </files>
+
     <administration>
         <files folder="administrator/components/com_translations">
-            <file>dispatcher.php</file>
-            <file>translations.php</file>
-
             <folder>databases</folder>
             <folder>install</folder>
             <folder>language</folder>
