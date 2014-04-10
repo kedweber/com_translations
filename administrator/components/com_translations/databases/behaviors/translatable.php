@@ -164,7 +164,7 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
             }
         }
 
-	    if($context->data->getTable()->getName() != 'cck_values')
+	    if($context->data->getTable()->getName() && $context->data->id)
 	    {
 		    $this->getService('com://admin/translations.model.translations')->row($context->data->id)->table($context->data->getTable()->getName())->getList()->delete();
 	    }
