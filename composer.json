@@ -1,0 +1,17 @@
+{
+    "name": "moyo/translations",
+    "type": "joomlatools-installer",
+    "description": "Translations",
+    "keywords": ["joomla", "moyo"],
+    "homepage": "https://moyoweb.assembla.com/code/moyo-content/git-8/nodes",
+    "authors": [
+        {
+            "name": "Dave Li",
+            "email": "dave@moyoweb.nl",
+            "homepage": "http://www.moyoweb.nl"
+        }
+    ],
+    "require": {
+        "joomlatools/installer": "*"
+    }
+}
