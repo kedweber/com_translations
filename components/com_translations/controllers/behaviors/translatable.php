@@ -43,5 +43,28 @@ class ComTranslationsControllerBehaviorTranslatable extends KControllerBehaviorA
                 JFactory::getApplication()->enqueueMessage(JText::_('ONLY_AVAILABLE_' . strtoupper(substr($context->result->language, 0, 2))), 'danger');
             }
         }
+
+		if($context->result->translated == 0) {
+			$id = $context->result->id;
+
+			$originalApplicationLanguage = JFactory::getLanguage()->getTag();
+
+			$originalArticleLanguage = $this->getService('com://admin/translations.model.translations')->table($this->getModel()->getTable()->getName())->row($id)->original(1)->getItem();
+
+			// Load translation file for the message
+			$lang   = JFactory::getLanguage();
+			$lang->load('com_translations' , JPATH_ROOT.'/components/com_translations/', $lang->getTag(), true);
+
+			// Get item from original language
+			JFactory::getLanguage()->setLanguage($originalArticleLanguage->iso_code);
+			$this->getModel()->reset();
+
+			$context->result = $this->getModel()->id($id)->getItem();
+
+			JFactory::getLanguage()->setLanguage($originalApplicationLanguage);
+
+			// Display message
+			JFactory::getApplication()->enqueueMessage(JText::_('ONLY_AVAILABLE_' . strtoupper(substr($context->result->language, 0, 2))), 'danger');
+		}
     }
 }

@@ -2,13 +2,33 @@
 
 class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstract
 {
+	protected $_sync;
+	protected $_recursive;
+
+	/**
+	 * @param KConfig $config
+	 */
+	public function __construct(KConfig $config)
+	{
+		if(isset($config->sync)) {
+			$this->_sync = $config->sync;
+		}
+
+		if(isset($config->recursive)) {
+			$this->_recursive = $config->recursive;
+		}
+
+		parent::__construct($config);
+	}
+
     /**
      * @param KConfig $config
      */
     protected function _initialize(KConfig $config)
     {
         $config->append(array(
-            'priority'   => KCommand::PRIORITY_LOWEST
+            'priority'	=> KCommand::PRIORITY_LOWEST,
+			'recursive'	=> 0
         ));
 
         parent::_initialize($config);
@@ -144,6 +164,11 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
 	protected function _afterTableUpdate(KCommandContext $context)
 	{
 		$this->_saveTranslation($context);
+
+		if($this->_sync instanceof KConfig)
+		{
+			$this->_sync($context);
+		}
 	}
 
     /**
@@ -255,5 +280,51 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
 			));
 			$translation->save();
 		}
+	}
+
+
+	/**
+	 * @param $context
+	 */
+	protected function _sync($context)
+	{
+		if($this->_recursive == 0) {
+			foreach($this->getLanguages() as $language) {
+				$table = $context->data->getTable();
+
+				if($language->sef != 'en') {
+					try {
+						if($context->data->getTable()->getDatabase()->getTableSchema($this->getTableName($language->sef, $table))) {
+							JFactory::getLanguage()->setLanguage($language->lang_code);
+
+							$identifier = clone $context->data->getIdentifier();
+							$identifier->path = array('model');
+							$identifier->name = KInflector::pluralize($identifier->name);
+
+							$model = $this->getService($identifier);
+
+							$row = $model->id($context->data->id)->getItem();
+
+							if($behavior = $row->getTable()->getBehavior('translatable')) {
+								$behavior->setRecursive(1);
+							}
+
+							foreach($this->_sync as $column) {
+								$row->{$column} =  $context->data->{$column};
+							}
+
+							$row->save();
+						}
+					} catch(Exception $e) {
+						//TODO:: Mail error report!
+					}
+				}
+			}
+		}
+	}
+
+	public function setRecursive($value)
+	{
+		$this->_recursive = $value;
 	}
 }
