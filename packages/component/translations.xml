@@ -8,7 +8,7 @@
     <license>GNU GPLv3 - http://www.gnu.org/licenses/gpl.html</license>
     <authorEmail>dave@moyoweb.nl</authorEmail>
     <authorUrl>www.moyoweb.nl</authorUrl>
-    <version>1.0.2</version>
+    <version>1.0.4</version>
     <description>Translations</description>
 
     <install>
@@ -19,8 +19,6 @@
 
     <media folder="media">
         <folder>com_translations/css</folder>
-        <folder>com_translations/images</folder>
-        <folder>com_translations/js</folder>
     </media>
 
     <files folder="components/com_translations">
