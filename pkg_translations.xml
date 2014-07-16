@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<extension type="package" version="1.6">
+    <name>Translations</name>
+    <author>Dave Li</author>
+    <creationDate>July 2014</creationDate>
+    <packagename>translations</packagename>
+    <version>1.0.4</version>
+    <url>http://www.moyoweb.nl/</url>
+    <packager>Dave Li</packager>
+    <packagerurl>http://www.moyoweb.nl/</packagerurl>
+    <description>Translations Package</description>
+    <files folder="packages">
+        <file type="component" id="translations">component</file>
+    </files>
+</extension>
