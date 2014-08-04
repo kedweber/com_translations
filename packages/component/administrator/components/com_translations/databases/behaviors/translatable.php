@@ -47,6 +47,7 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
         if($query && $parent_table->getName() != 'cck_values' && $identityColumn) {
 			$query->select('IF(translations.translated > 0, 1, 0) AS translated');
 			$query->select('translations.iso_code AS language');
+			$query->select('translations.original AS original');
 			$query->join('left', '#__translations_translations AS translations', array(
 				'tbl.'.$identityColumn.' = translations.row',
 				'translations.table = LOWER("'.strtoupper($parent_table->getBase()).'")',
@@ -92,7 +93,7 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
         $filter = $this->getService('koowa:filter.slug');
 
         $context->data->slug = $filter->sanitize($context->data->title);
-
+        
         if($iso_code != 'en') {
             try {
                 if($context->data->getTable()->getDatabase()->getTableSchema($iso_code.'_'.$table)) {
@@ -113,7 +114,7 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
         $table = $context->data->getTable();
         $database = $table->getDatabase();
         $languages	= $this->getLanguages();
-
+        
         foreach($languages as $language) {
             $iso_code = $language->sef;
 
@@ -131,14 +132,17 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
 
                     $data = $table->filter($context->data->getData(), true);
                     $data = $table->mapColumns($data);
-
+                    
                     $database->insert($name, $data, $query);
+                } else {
+                    var_dump($name);
+                    die();
                 }
             } catch(Exception $e) {
                 //TODO:: Mail error report!
             }
         }
-
+        
 		$this->_saveTranslation($context);
     }
 
