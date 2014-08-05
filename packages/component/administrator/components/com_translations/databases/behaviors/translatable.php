@@ -90,9 +90,11 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
         $table      = $context->table;
 
         //TODO: Make this work via the database behavior.
-        $filter = $this->getService('koowa:filter.slug');
+        if(!$context->data->slug) {
+            $filter = $this->getService('koowa:filter.slug');
 
-        $context->data->slug = $filter->sanitize($context->data->title);
+            $context->data->slug = $filter->sanitize($context->data->title);
+        }
         
         if($iso_code != 'en') {
             try {
