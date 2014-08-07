@@ -1,9 +1,9 @@
 {
-    "name": "moyo/translations",
+    "name": "cta/translations",
     "type": "joomlatools-installer",
     "description": "Translations",
     "keywords": ["joomla", "moyo"],
-    "homepage": "https://moyoweb.assembla.com/code/moyo-content/git-8/nodes",
+    "homepage": "https://github.com/cta-int/translations",
     "authors": [
         {
             "name": "Dave Li",
