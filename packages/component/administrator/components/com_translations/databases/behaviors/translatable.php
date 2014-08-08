@@ -294,6 +294,8 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
 	 */
 	protected function _sync($context)
 	{
+        $original = JFactory::getLanguage()->getTag();
+        
 		if($this->_recursive == 0) {
 			foreach($this->getLanguages() as $language) {
 				$table = $context->data->getTable();
@@ -327,6 +329,9 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
 				}
 			}
 		}
+        
+        // Reset back to original
+        JFactory::getLanguage()->setLanguage($original);
 	}
 
 	public function setRecursive($value)
