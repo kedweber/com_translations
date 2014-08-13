@@ -25,16 +25,16 @@ section:
 
 ```json
 {
-    "name": "moyo/translations",
+    "name": "cta/translations",
     "type": "vcs",
-    "url": "https://git.assembla.com/moyo-content.translations.git"
+    "url": "https://github.com/cta-int/translations.git"
 }
 ```
 
 The require section should contain the following line:
 
 ```json
-    "moyo/translations": "1.1.*",
+    "cta/translations": "1.1.*",
 ```
 
 Afterward, just run `composer update` from the root of your Joomla project.
