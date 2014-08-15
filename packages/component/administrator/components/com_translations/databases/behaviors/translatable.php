@@ -1,5 +1,3 @@
-
-
 <?php
 
 class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstract
@@ -98,7 +96,7 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
 
             $context->data->slug = $filter->sanitize($context->data->title);
         }
-        
+
         if($iso_code != 'en') {
             try {
                 if($context->data->getTable()->getDatabase()->getTableSchema($iso_code.'_'.$table)) {
@@ -119,7 +117,7 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
         $table = $context->data->getTable();
         $database = $table->getDatabase();
         $languages	= $this->getLanguages();
-        
+
         foreach($languages as $language) {
             $iso_code = $language->sef;
 
@@ -137,7 +135,7 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
 
                     $data = $table->filter($context->data->getData(), true);
                     $data = $table->mapColumns($data);
-                    
+
                     $database->insert($name, $data, $query);
                 } else {
                     var_dump($name);
@@ -147,7 +145,7 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
                 //TODO:: Mail error report!
             }
         }
-        
+
 		$this->_saveTranslation($context);
     }
 
@@ -298,7 +296,7 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
 	protected function _sync($context)
 	{
         $original = JFactory::getLanguage()->getTag();
-        
+
 		if($this->_recursive == 0) {
 			foreach($this->getLanguages() as $language) {
 				$table = $context->data->getTable();
@@ -332,7 +330,7 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
 				}
 			}
 		}
-        
+
         // Reset back to original
         JFactory::getLanguage()->setLanguage($original);
 	}
