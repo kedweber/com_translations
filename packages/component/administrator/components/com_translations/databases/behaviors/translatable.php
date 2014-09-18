@@ -156,6 +156,14 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
     {
         $iso_code   = substr(JFactory::getLanguage()->getTag(), 0, 2);
         $table      = $context->table;
+        $modified = $context->data->getData(true);
+
+        if($modified['title'] && $modified['translated'] && !isset($modified['slug'])) {
+            if($context->data->isSluggable()) {
+                $filter = $this->getService('koowa:filter.slug');
+                $context->data->slug = $filter->sanitize($context->data->title);
+            }
+        }
 
         if($iso_code != 'en') {
             try {
