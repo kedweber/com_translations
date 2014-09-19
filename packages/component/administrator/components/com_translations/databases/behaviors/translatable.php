@@ -157,12 +157,33 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
         $iso_code   = substr(JFactory::getLanguage()->getTag(), 0, 2);
         $table      = $context->table;
         $modified = $context->data->getData(true);
+        $language = JFactory::getLanguage();
+        $original_lang = $language->getTag();
+        $filter = $this->getService('koowa:filter.slug');
 
-        if($modified['title'] && $modified['translated'] && !isset($modified['slug'])) {
-            if($context->data->isSluggable()) {
-                $filter = $this->getService('koowa:filter.slug');
-                $context->data->slug = $filter->sanitize($context->data->title);
+        if($modified['translated']) {
+            // We have to get the original language.
+            $row = $this->getService('com://admin/translations.database.row.translation');
+            $row->setData(array(
+                'table' => $table,
+                'row' => $context->data->id,
+                'original' => 1
+            ))->load();
+
+            $identifier = clone $context->data->getIdentifier();
+            $identifier->name = KInflector::pluralize($identifier->name);
+            $identifier->path = array('model');
+
+            if($context->data->isSluggable() && !$row->isNew()) {
+                $language->setLanguage($row->iso_code);
+                $original = $this->getService($identifier)->id($context->data->id)->getItem();
+
+                if($original->slug === $context->data->slug) {
+                    $context->data->slug = $filter->sanitize($context->data->title);
+                }
             }
+
+            $language->setLanguage($original_lang);
         }
 
         if($iso_code != 'en') {
