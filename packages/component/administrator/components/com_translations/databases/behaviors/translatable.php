@@ -330,7 +330,7 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
 			foreach($this->getLanguages() as $language) {
 				$table = $context->data->getTable();
 
-				if($language->sef != 'en') {
+				if($language->sef != substr(JFactory::getLanguage()->getTag(), 0, 2)) {
 					try {
 						if($context->data->getTable()->getDatabase()->getTableSchema($this->getTableName($language->sef, $table))) {
 							JFactory::getLanguage()->setLanguage($language->lang_code);
@@ -347,7 +347,7 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
 								$behavior->setRecursive(1);
 							}
 
-							foreach($this->_sync as $column) {
+                            foreach($this->_sync as $column) {
 								$row->{$column} =  $context->data->{$column};
 							}
 
