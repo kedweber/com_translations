@@ -2,7 +2,7 @@
     "name": "cta/translations",
     "type": "joomlatools-installer",
     "description": "Translations",
-    "keywords": ["joomla", "moyo"],
+    "keywords": ["joomla", "nooku", "translations"],
     "homepage": "https://github.com/cta-int/translations",
     "authors": [
         {
