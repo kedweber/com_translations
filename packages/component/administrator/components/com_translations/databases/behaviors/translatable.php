@@ -319,53 +319,53 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
 	}
 
 
-	/**
-	 * @param $context
-	 */
-	protected function _sync($context)
-	{
+    /**
+     * @param $context
+     */
+    protected function _sync($context)
+    {
         $original = JFactory::getLanguage()->getTag();
 
-		if($this->_recursive == 0) {
-			foreach($this->getLanguages() as $language) {
-				$table = $context->data->getTable();
+        if($this->_recursive == 0) {
+            foreach($this->getLanguages() as $language) {
+                $table = $context->data->getTable();
 
-				if($language->sef != substr(JFactory::getLanguage()->getTag(), 0, 2)) {
-					try {
-						if($context->data->getTable()->getDatabase()->getTableSchema($this->getTableName($language->sef, $table))) {
-							JFactory::getLanguage()->setLanguage($language->lang_code);
+                if($language->sef != substr(JFactory::getLanguage()->getTag(), 0, 2)) {
+                    try {
+                        if($context->data->getTable()->getDatabase()->getTableSchema($this->getTableName($language->sef, $table))) {
+                            JFactory::getLanguage()->setLanguage($language->lang_code);
 
-							$identifier = clone $context->data->getIdentifier();
-							$identifier->path = array('model');
-							$identifier->name = KInflector::pluralize($identifier->name);
+                            $identifier = clone $context->data->getIdentifier();
+                            $identifier->path = array('model');
+                            $identifier->name = KInflector::pluralize($identifier->name);
 
-							$model = $this->getService($identifier);
+                            $model = $this->getService($identifier);
 
-							$row = $model->id($context->data->id)->getItem();
+                            $row = $model->id($context->data->id)->getItem();
 
-							if($behavior = $row->getTable()->getBehavior('translatable')) {
-								$behavior->setRecursive(1);
-							}
+                            if($behavior = $row->getTable()->getBehavior('translatable')) {
+                                $behavior->setRecursive(1);
+                            }
 
                             foreach($this->_sync as $column) {
-								$row->{$column} =  $context->data->{$column};
-							}
+                                $row->{$column} =  $context->data->{$column};
+                            }
 
-							$row->save();
-						}
-					} catch(Exception $e) {
-						//TODO:: Mail error report!
-					}
-				}
-			}
-		}
+                            $row->save();
+                        }
+                    } catch(Exception $e) {
+                        //TODO:: Mail error report!
+                    }
+                }
+            }
+        }
 
         // Reset back to original
         JFactory::getLanguage()->setLanguage($original);
-	}
+    }
 
-	public function setRecursive($value)
-	{
-		$this->_recursive = $value;
-	}
+    public function setRecursive($value)
+    {
+        $this->_recursive = $value;
+    }
 }
