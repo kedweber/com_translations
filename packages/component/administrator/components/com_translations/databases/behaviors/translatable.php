@@ -1,5 +1,3 @@
-
-
 <?php
 
 class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstract
@@ -98,7 +96,7 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
 
             $context->data->slug = $filter->sanitize($context->data->title);
         }
-        
+
         if($iso_code != 'en') {
             try {
                 if($context->data->getTable()->getDatabase()->getTableSchema($iso_code.'_'.$table)) {
@@ -119,7 +117,7 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
         $table = $context->data->getTable();
         $database = $table->getDatabase();
         $languages	= $this->getLanguages();
-        
+
         foreach($languages as $language) {
             $iso_code = $language->sef;
 
@@ -137,7 +135,7 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
 
                     $data = $table->filter($context->data->getData(), true);
                     $data = $table->mapColumns($data);
-                    
+
                     $database->insert($name, $data, $query);
                 } else {
                     var_dump($name);
@@ -147,7 +145,7 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
                 //TODO:: Mail error report!
             }
         }
-        
+
 		$this->_saveTranslation($context);
     }
 
@@ -158,6 +156,35 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
     {
         $iso_code   = substr(JFactory::getLanguage()->getTag(), 0, 2);
         $table      = $context->table;
+        $modified = $context->data->getData(true);
+        $language = JFactory::getLanguage();
+        $original_lang = $language->getTag();
+        $filter = $this->getService('koowa:filter.slug');
+
+        if($modified['translated']) {
+            // We have to get the original language.
+            $row = $this->getService('com://admin/translations.database.row.translation');
+            $row->setData(array(
+                'table' => $table,
+                'row' => $context->data->id,
+                'original' => 1
+            ))->load();
+
+            $identifier = clone $context->data->getIdentifier();
+            $identifier->name = KInflector::pluralize($identifier->name);
+            $identifier->path = array('model');
+
+            if($context->data->isSluggable() && !$row->isNew()) {
+                $language->setLanguage($row->iso_code);
+                $original = $this->getService($identifier)->id($context->data->id)->getItem();
+
+                if($original->slug === $context->data->slug) {
+                    $context->data->slug = $filter->sanitize($context->data->title);
+                }
+            }
+
+            $language->setLanguage($original_lang);
+        }
 
         if($iso_code != 'en') {
             try {
@@ -292,53 +319,53 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
 	}
 
 
-	/**
-	 * @param $context
-	 */
-	protected function _sync($context)
-	{
+    /**
+     * @param $context
+     */
+    protected function _sync($context)
+    {
         $original = JFactory::getLanguage()->getTag();
-        
-		if($this->_recursive == 0) {
-			foreach($this->getLanguages() as $language) {
-				$table = $context->data->getTable();
 
-				if($language->sef != 'en') {
-					try {
-						if($context->data->getTable()->getDatabase()->getTableSchema($this->getTableName($language->sef, $table))) {
-							JFactory::getLanguage()->setLanguage($language->lang_code);
+        if($this->_recursive == 0) {
+            foreach($this->getLanguages() as $language) {
+                $table = $context->data->getTable();
 
-							$identifier = clone $context->data->getIdentifier();
-							$identifier->path = array('model');
-							$identifier->name = KInflector::pluralize($identifier->name);
+                if($language->sef != substr(JFactory::getLanguage()->getTag(), 0, 2)) {
+                    try {
+                        if($context->data->getTable()->getDatabase()->getTableSchema($this->getTableName($language->sef, $table))) {
+                            JFactory::getLanguage()->setLanguage($language->lang_code);
 
-							$model = $this->getService($identifier);
+                            $identifier = clone $context->data->getIdentifier();
+                            $identifier->path = array('model');
+                            $identifier->name = KInflector::pluralize($identifier->name);
 
-							$row = $model->id($context->data->id)->getItem();
+                            $model = $this->getService($identifier);
 
-							if($behavior = $row->getTable()->getBehavior('translatable')) {
-								$behavior->setRecursive(1);
-							}
+                            $row = $model->id($context->data->id)->getItem();
 
-							foreach($this->_sync as $column) {
-								$row->{$column} =  $context->data->{$column};
-							}
+                            if($behavior = $row->getTable()->getBehavior('translatable')) {
+                                $behavior->setRecursive(1);
+                            }
 
-							$row->save();
-						}
-					} catch(Exception $e) {
-						//TODO:: Mail error report!
-					}
-				}
-			}
-		}
-        
+                            foreach($this->_sync as $column) {
+                                $row->{$column} =  $context->data->{$column};
+                            }
+
+                            $row->save();
+                        }
+                    } catch(Exception $e) {
+                        //TODO:: Mail error report!
+                    }
+                }
+            }
+        }
+
         // Reset back to original
         JFactory::getLanguage()->setLanguage($original);
-	}
+    }
 
-	public function setRecursive($value)
-	{
-		$this->_recursive = $value;
-	}
+    public function setRecursive($value)
+    {
+        $this->_recursive = $value;
+    }
 }
