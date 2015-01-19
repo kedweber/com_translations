@@ -131,7 +131,7 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
                 if($database->getTableSchema($name)) {
                     $query = $database->getQuery();
 
-//                    $context->data->enabled = 0;
+                    $context->data->enabled = 0;
 
                     $data = $table->filter($context->data->getData(), true);
                     $data = $table->mapColumns($data);
