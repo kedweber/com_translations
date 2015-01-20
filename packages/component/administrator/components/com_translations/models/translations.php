@@ -10,6 +10,8 @@ class ComTranslationsModelTranslations extends ComDefaultModelDefault
 		parent::__construct($config);
 
 		$this->_state
+            ->insert('table', 'string')
+            ->insert('row', 'int')
 			->insert('translated', 'boolean')
 			->insert('original', 'boolean', null ,true)
 		;
