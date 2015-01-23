@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <extension type="package" version="1.6">
     <name>Translations</name>
-    <author>Dave Li</author>
+    <author>Moyo Web Architects</author>
     <creationDate>July 2014</creationDate>
     <packagename>translations</packagename>
-    <version>1.1.7</version>
+    <version>1.1.8</version>
     <url>http://www.moyoweb.nl/</url>
     <packager>Joep van der Heijden</packager>
     <packagerurl>http://www.moyoweb.nl/</packagerurl>
