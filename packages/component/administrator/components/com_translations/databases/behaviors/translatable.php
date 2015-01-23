@@ -57,26 +57,30 @@ class ComTranslationsDatabaseBehaviorTranslatable extends KDatabaseBehaviorAbstr
 		}
 
         if($iso_code != 'en') {
-            foreach($query->from as $key => $table) {
+            if($query->from) {
+                foreach ($query->from as $key => $table) {
 
-                $sanitized = strtok(str_replace('#__', $iso_code.'_', $table), " ");
+                    $sanitized = strtok(str_replace('#__', $iso_code . '_', $table), " ");
 
-                try {
-                    if($parent_table->getDatabase()->getTableSchema($sanitized)) {
-                        $query->from[$key] = str_replace('#__', '#__'.$iso_code.'_', $table);
+                    try {
+                        if ($parent_table->getDatabase()->getTableSchema($sanitized)) {
+                            $query->from[$key] = str_replace('#__', '#__' . $iso_code . '_', $table);
+                        }
+                    } catch (Exception $e) {
+                        //TODO:: Mail error report!
                     }
-                } catch(Exception $e) {
-                    //TODO:: Mail error report!
                 }
             }
 
-            foreach($query->join as $key => $join) {
-                try {
-                    if($parent_table->getDatabase()->getTableSchema($iso_code.'_'.str_replace('#__', '', current(explode(' ', $join['table']))))) {
-                        $query->join[$key]['table'] = str_replace('#__', '#__'.$iso_code.'_', $join['table']);
+            if($query->join) {
+                foreach ($query->join as $key => $join) {
+                    try {
+                        if ($parent_table->getDatabase()->getTableSchema($iso_code . '_' . str_replace('#__', '', current(explode(' ', $join['table']))))) {
+                            $query->join[$key]['table'] = str_replace('#__', '#__' . $iso_code . '_', $join['table']);
+                        }
+                    } catch (Exception $e) {
+                        //TODO:: Mail error report!
                     }
-                } catch(Exception $e) {
-                    //TODO:: Mail error report!
                 }
             }
         }
