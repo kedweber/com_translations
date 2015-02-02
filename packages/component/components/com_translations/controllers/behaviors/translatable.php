@@ -45,6 +45,8 @@ class ComTranslationsControllerBehaviorTranslatable extends KControllerBehaviorA
         }
 
 		if($context->result->translated == 0) {
+            JFactory::getDocument()->setMetaData('robots','noindex');
+
 			$id = $context->result->id;
 
 			$originalApplicationLanguage = JFactory::getLanguage()->getTag();
