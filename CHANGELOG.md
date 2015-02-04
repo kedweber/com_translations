@@ -1,5 +1,9 @@
 # changelog for com_translations
 
+### 1.1.10 - 4 february 2015
+
+* In some cases, the translatable behavior was broken. This version fixes it.
+
 ### 1.1.9 - 3 february 2015
 
 * Add the nofollow meta tag to untranslated content. This prevents data to be tagged 'duplicate' by search engines.
