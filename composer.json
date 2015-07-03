@@ -1,9 +1,9 @@
 {
-    "name": "cta/translations",
+    "name": "moyo/translations",
     "type": "joomlatools-installer",
     "description": "Translations",
     "keywords": ["joomla", "nooku", "translations"],
-    "homepage": "https://github.com/cta-int/translations",
+    "homepage": "https://github.com/moyoweb/translations",
     "authors": [
         {
             "name": "Dave Li",
